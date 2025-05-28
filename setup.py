@@ -1,6 +1,6 @@
 from setuptools import setup
 
-from pyModbusTCP import constants
+from tecscipyModbusTCP import constants
 
 with open("README.rst") as f:
     readme = f.read()

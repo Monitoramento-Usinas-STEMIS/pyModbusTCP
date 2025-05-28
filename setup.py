@@ -6,7 +6,7 @@ with open("README.rst") as f:
     readme = f.read()
 
 setup(
-    name="tecsci-pyModbusTCP",
+    name="tecscipyModbusTCP",
     version=constants.VERSION,
     description="A simple Modbus/TCP library for Python",
     long_description=readme,

@@ -13,7 +13,7 @@ setup(
     author="Loic Lefebvre",
     author_email="loic.celine@free.fr",
     license="MIT",
-    url="https://github.com/sourceperl/pyModbusTCP",
-    packages=["pyModbusTCP"],
+    url="https://github.com/Monitoramento-Usinas-STEMIS/pyModbusTCP",
+    packages=["tecscipyModbusTCP"],
     platforms="any",
 )

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-""" Minimal code example. """
+"""Minimal code example."""
 
-from pyModbusTCP.client import ModbusClient
+from tecscipyModbusTCP.client import ModbusClient
 
 # read 3 coils at @0 on localhost server
-print('coils=%s' % ModbusClient().read_coils(0, 3))
+print("coils=%s" % ModbusClient().read_coils(0, 3))

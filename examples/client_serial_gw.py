@@ -17,16 +17,16 @@ import struct
 # need sudo pip3 install pyserial==3.4
 from serial import Serial, serialutil
 
-from pyModbusTCP.client import ModbusClient
-from pyModbusTCP.constants import EXP_GATEWAY_TARGET_DEVICE_FAILED_TO_RESPOND
-from pyModbusTCP.utils import crc16
+from tecscipyModbusTCP.client import ModbusClient
+from tecscipyModbusTCP.constants import EXP_GATEWAY_TARGET_DEVICE_FAILED_TO_RESPOND
+from tecscipyModbusTCP.utils import crc16
 
 
 # some class
 class ModbusRTUFrame:
-    """ Modbus RTU frame container class. """
+    """Modbus RTU frame container class."""
 
-    def __init__(self, raw=b''):
+    def __init__(self, raw=b""):
         # public
         self.raw = raw
 
@@ -36,7 +36,7 @@ class ModbusRTUFrame:
     @property
     def as_hex(self) -> str:
         """Return RAW frame as a hex string."""
-        return '-'.join(['%02X' % x for x in self.raw])
+        return "-".join(["%02X" % x for x in self.raw])
 
     @property
     def pdu(self):
@@ -80,14 +80,14 @@ class ModbusRTUFrame:
         :type slave_addr: int
         """
         # [address] + PDU
-        tmp_raw = struct.pack('B', slave_addr) + raw_pdu
+        tmp_raw = struct.pack("B", slave_addr) + raw_pdu
         # [address] + PDU + [CRC 16]
-        tmp_raw += struct.pack('<H', crc16(tmp_raw))
+        tmp_raw += struct.pack("<H", crc16(tmp_raw))
         self.raw = tmp_raw
 
 
 class SlaveSerialWorker:
-    """ A serial worker to manage I/O with RTU master device. """
+    """A serial worker to manage I/O with RTU master device."""
 
     def __init__(self, port, end_of_frame=0.05):
         # public
@@ -98,7 +98,7 @@ class SlaveSerialWorker:
 
     def handle_request(self):
         """Default PDU request processing here, you must implement it in your app."""
-        raise RuntimeError('implement this')
+        raise RuntimeError("implement this")
 
     def run(self):
         """Serial worker process."""
@@ -127,7 +127,9 @@ class SlaveSerialWorker:
             self.request.raw = rx_raw
             crc_ok = self.request.is_valid
             # log of received items for debugging purposes
-            logger.debug('Receive: %s (CRC %s)' % (self.request, "OK" if crc_ok else "ERROR"))
+            logger.debug(
+                "Receive: %s (CRC %s)" % (self.request, "OK" if crc_ok else "ERROR")
+            )
             # just ignore current frame on CRC error
             if not crc_ok:
                 continue
@@ -136,12 +138,12 @@ class SlaveSerialWorker:
             # if a response frame is set sent it
             if self.response.is_set:
                 # log sent items for debugging purposes
-                logger.debug('Send: %s' % self.response)
+                logger.debug("Send: %s" % self.response)
                 self.serial_port.write(self.response.raw)
 
 
 class Serial2ModbusClient:
-    """ Customize a slave serial worker for map a modbus TCP client. """
+    """Customize a slave serial worker for map a modbus TCP client."""
 
     def __init__(self, serial_w, mbus_cli, slave_addr=1, allow_bcast=False):
         """Serial2ModbusClient constructor.
@@ -175,47 +177,100 @@ class Serial2ModbusClient:
             # if no error, format a response frame
             if resp_pdu:
                 # regular response from Modbus/TCP client
-                self.serial_w.response.build(raw_pdu=resp_pdu, slave_addr=self.serial_w.request.slave_addr)
+                self.serial_w.response.build(
+                    raw_pdu=resp_pdu, slave_addr=self.serial_w.request.slave_addr
+                )
             else:
                 # exception response
-                exp_pdu = struct.pack('BB', self.serial_w.request.function_code + 0x80,
-                                      EXP_GATEWAY_TARGET_DEVICE_FAILED_TO_RESPOND)
-                self.serial_w.response.build(raw_pdu=exp_pdu, slave_addr=self.serial_w.request.slave_addr)
+                exp_pdu = struct.pack(
+                    "BB",
+                    self.serial_w.request.function_code + 0x80,
+                    EXP_GATEWAY_TARGET_DEVICE_FAILED_TO_RESPOND,
+                )
+                self.serial_w.response.build(
+                    raw_pdu=exp_pdu, slave_addr=self.serial_w.request.slave_addr
+                )
 
     def run(self):
         """Start serial processing."""
         self.serial_w.run()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # parse args
     parser = argparse.ArgumentParser()
-    parser.add_argument('serial_device', type=str, help='serial device (like /dev/ttyUSB0)')
-    parser.add_argument('-d', '--debug', action='store_true', help='debug mode')
-    parser.add_argument('-a', '--address', type=int, default=1, help='slave address (default is 1)')
-    parser.add_argument('--allow-broadcast', action='store_true', help='serial allow broadcast frame (to address 0)')
-    parser.add_argument('-b', '--baudrate', type=int, default=9600, help='serial rate (default is 9600)')
-    parser.add_argument('-e', '--eof', type=float, default=0.05, help='serial end of frame delay in s (default: 0.05)')
-    parser.add_argument('-H', '--host', type=str, default='localhost', help='server host (default: localhost)')
-    parser.add_argument('-p', '--port', type=int, default=502, help='server TCP port (default: 502)')
-    parser.add_argument('-t', '--timeout', type=float, default=1.0, help='server timeout delay in s (default: 1.0)')
+    parser.add_argument(
+        "serial_device", type=str, help="serial device (like /dev/ttyUSB0)"
+    )
+    parser.add_argument("-d", "--debug", action="store_true", help="debug mode")
+    parser.add_argument(
+        "-a", "--address", type=int, default=1, help="slave address (default is 1)"
+    )
+    parser.add_argument(
+        "--allow-broadcast",
+        action="store_true",
+        help="serial allow broadcast frame (to address 0)",
+    )
+    parser.add_argument(
+        "-b", "--baudrate", type=int, default=9600, help="serial rate (default is 9600)"
+    )
+    parser.add_argument(
+        "-e",
+        "--eof",
+        type=float,
+        default=0.05,
+        help="serial end of frame delay in s (default: 0.05)",
+    )
+    parser.add_argument(
+        "-H",
+        "--host",
+        type=str,
+        default="localhost",
+        help="server host (default: localhost)",
+    )
+    parser.add_argument(
+        "-p", "--port", type=int, default=502, help="server TCP port (default: 502)"
+    )
+    parser.add_argument(
+        "-t",
+        "--timeout",
+        type=float,
+        default=1.0,
+        help="server timeout delay in s (default: 1.0)",
+    )
     args = parser.parse_args()
     # init logging
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
     logger = logging.getLogger(__name__)
     try:
         # init serial port
-        logger.info('Open serial port %s at %d bauds (eof = %.2fs)', args.serial_device, args.baudrate, args.eof)
+        logger.info(
+            "Open serial port %s at %d bauds (eof = %.2fs)",
+            args.serial_device,
+            args.baudrate,
+            args.eof,
+        )
         serial_port = Serial(port=args.serial_device, baudrate=args.baudrate)
         # start modbus client as request relay
-        logger.info('Connect to modbus server at %s:%d (timeout = %.2fs)', args.host, args.port, args.timeout)
-        mbus_cli = ModbusClient(host=args.host, port=args.port, unit_id=1, timeout=args.timeout)
+        logger.info(
+            "Connect to modbus server at %s:%d (timeout = %.2fs)",
+            args.host,
+            args.port,
+            args.timeout,
+        )
+        mbus_cli = ModbusClient(
+            host=args.host, port=args.port, unit_id=1, timeout=args.timeout
+        )
         # init serial worker
         serial_worker = SlaveSerialWorker(serial_port, end_of_frame=args.eof)
         # start Serial2ModbusClient
-        logger.info('Start serial worker (slave address = %d)' % args.address)
-        Serial2ModbusClient(mbus_cli=mbus_cli, serial_w=serial_worker,
-                            slave_addr=args.address, allow_bcast=args.allow_broadcast).run()
+        logger.info("Start serial worker (slave address = %d)" % args.address)
+        Serial2ModbusClient(
+            mbus_cli=mbus_cli,
+            serial_w=serial_worker,
+            slave_addr=args.address,
+            allow_bcast=args.allow_broadcast,
+        ).run()
     except serialutil.SerialException as e:
-        logger.critical('Serial device error: %r', e)
+        logger.critical("Serial device error: %r", e)
         exit(1)

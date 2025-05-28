@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
-""" Read 10 coils and print result on stdout. """
+"""Read 10 coils and print result on stdout."""
 
 import time
 
-from pyModbusTCP.client import ModbusClient
+from tecscipyModbusTCP.client import ModbusClient
 
 # init modbus client
-c = ModbusClient(host='localhost', port=502, auto_open=True)
+c = ModbusClient(host="localhost", port=502, auto_open=True)
 
 # main read loop
 while True:
@@ -16,9 +16,9 @@ while True:
 
     # if success display registers
     if coils_l:
-        print('coil ad #0 to 9: %s' % coils_l)
+        print("coil ad #0 to 9: %s" % coils_l)
     else:
-        print('unable to read coils')
+        print("unable to read coils")
 
     # sleep 2s before next polling
     time.sleep(2)

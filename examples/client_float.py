@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 
-""" How-to add float support to ModbusClient. """
+"""How-to add float support to ModbusClient."""
 
-from pyModbusTCP.client import ModbusClient
-from pyModbusTCP.utils import (decode_ieee, encode_ieee, long_list_to_word,
-                               word_list_to_long)
+from tecscipyModbusTCP.client import ModbusClient
+from tecscipyModbusTCP.utils import (
+    decode_ieee,
+    encode_ieee,
+    long_list_to_word,
+    word_list_to_long,
+)
 
 
 class FloatModbusClient(ModbusClient):
@@ -25,9 +29,9 @@ class FloatModbusClient(ModbusClient):
         return self.write_multiple_registers(address, b16_l)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # init modbus client
-    c = FloatModbusClient(host='localhost', port=502, auto_open=True)
+    c = FloatModbusClient(host="localhost", port=502, auto_open=True)
 
     # write 10.0 at @0
     c.write_float(0, [10.0])

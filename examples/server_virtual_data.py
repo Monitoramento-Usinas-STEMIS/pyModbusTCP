@@ -14,7 +14,7 @@ Run this as root to listen on TCP priviliged ports (<= 1024).
 import argparse
 from datetime import datetime
 
-from pyModbusTCP.server import DataBank, ModbusServer
+from tecscipyModbusTCP.server import DataBank, ModbusServer
 
 
 class MyDataBank(DataBank):
@@ -29,21 +29,31 @@ class MyDataBank(DataBank):
         """Get virtual holding registers."""
         # populate virtual registers dict with current datetime values
         now = datetime.now()
-        v_regs_d = {0: now.day, 1: now.month, 2: now.year,
-                    3: now.hour, 4: now.minute, 5: now.second}
+        v_regs_d = {
+            0: now.day,
+            1: now.month,
+            2: now.year,
+            3: now.hour,
+            4: now.minute,
+            5: now.second,
+        }
         # build a list of virtual regs to return to server data handler
         # return None if any of virtual registers is missing
         try:
-            return [v_regs_d[a] for a in range(address, address+number)]
+            return [v_regs_d[a] for a in range(address, address + number)]
         except KeyError:
             return
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # parse args
     parser = argparse.ArgumentParser()
-    parser.add_argument('-H', '--host', type=str, default='localhost', help='Host (default: localhost)')
-    parser.add_argument('-p', '--port', type=int, default=502, help='TCP port (default: 502)')
+    parser.add_argument(
+        "-H", "--host", type=str, default="localhost", help="Host (default: localhost)"
+    )
+    parser.add_argument(
+        "-p", "--port", type=int, default=502, help="TCP port (default: 502)"
+    )
     args = parser.parse_args()
     # init modbus server and start it
     server = ModbusServer(host=args.host, port=args.port, data_bank=MyDataBank())

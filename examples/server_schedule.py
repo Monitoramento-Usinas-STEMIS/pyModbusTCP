@@ -18,7 +18,7 @@ import time
 # need https://github.com/dbader/schedule
 import schedule
 
-from pyModbusTCP.server import ModbusServer
+from tecscipyModbusTCP.server import ModbusServer
 
 
 def alive_word_job():
@@ -26,21 +26,25 @@ def alive_word_job():
 
     Job called every 10s by scheduler.
     """
-    server.data_bank.set_holding_registers(0, [int(time.time()) % (24*3600) // 10])
+    server.data_bank.set_holding_registers(0, [int(time.time()) % (24 * 3600) // 10])
 
 
 # parse args
 parser = argparse.ArgumentParser()
-parser.add_argument('-H', '--host', type=str, default='localhost', help='Host (default: localhost)')
-parser.add_argument('-p', '--port', type=int, default=502, help='TCP port (default: 502)')
+parser.add_argument(
+    "-H", "--host", type=str, default="localhost", help="Host (default: localhost)"
+)
+parser.add_argument(
+    "-p", "--port", type=int, default=502, help="TCP port (default: 502)"
+)
 args = parser.parse_args()
 # init modbus server and start it
 server = ModbusServer(host=args.host, port=args.port, no_block=True)
 server.start()
 # init scheduler
 # schedule a daily downtime (from 18:00 to 06:00)
-schedule.every().day.at('18:00').do(server.stop)
-schedule.every().day.at('06:00').do(server.start)
+schedule.every().day.at("18:00").do(server.stop)
+schedule.every().day.at("06:00").do(server.start)
 # update life word at @0
 schedule.every(10).seconds.do(alive_word_job)
 # main loop

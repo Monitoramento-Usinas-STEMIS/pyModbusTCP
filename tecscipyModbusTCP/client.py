@@ -1,4 +1,4 @@
-"""pyModbusTCP Client"""
+""" pyModbusTCP Client """
 
 import logging
 import random
@@ -53,7 +53,6 @@ class DeviceIdentificationResponse:
     :param objects_by_id: a dictionary with requested object (dict keys are object id as int)
     :type objects_by_id: dict
     """
-
     conformity_level: int = 0
     more_follows: int = 0
     next_object_id: int = 0
@@ -103,15 +102,7 @@ class ModbusClient:
         def __init__(self, code):
             self.code = code
 
-    def __init__(
-        self,
-        host="localhost",
-        port=502,
-        unit_id=1,
-        timeout=30.0,
-        auto_open=True,
-        auto_close=False,
-    ):
+    def __init__(self, host='localhost', port=502, unit_id=1, timeout=30.0, auto_open=True, auto_close=False):
         """Constructor.
 
         :param host: hostname or IPv4/IPv6 address server address
@@ -152,15 +143,8 @@ class ModbusClient:
         self.auto_close = auto_close
 
     def __repr__(self):
-        r_str = "ModbusClient(host='%s', port=%d, unit_id=%d, timeout=%.2f, auto_open=%s, auto_close=%s)"
-        r_str %= (
-            self.host,
-            self.port,
-            self.unit_id,
-            self.timeout,
-            self.auto_open,
-            self.auto_close,
-        )
+        r_str = 'ModbusClient(host=\'%s\', port=%d, unit_id=%d, timeout=%.2f, auto_open=%s, auto_close=%s)'
+        r_str %= (self.host, self.port, self.unit_id, self.timeout, self.auto_open, self.auto_close)
         return r_str
 
     def __del__(self):
@@ -179,7 +163,7 @@ class ModbusClient:
     @property
     def last_error_as_txt(self):
         """Human-readable text that describe last error."""
-        return MB_ERR_TXT.get(self._last_error, "unknown error")
+        return MB_ERR_TXT.get(self._last_error, 'unknown error')
 
     @property
     def last_except(self):
@@ -189,13 +173,13 @@ class ModbusClient:
     @property
     def last_except_as_txt(self):
         """Short human-readable text that describe last modbus exception."""
-        default_str = "unreferenced exception 0x%X" % self._last_except
+        default_str = 'unreferenced exception 0x%X' % self._last_except
         return EXP_TXT.get(self._last_except, default_str)
 
     @property
     def last_except_as_full_txt(self):
         """Verbose human-readable text that describe last modbus exception."""
-        default_str = "unreferenced exception 0x%X" % self._last_except
+        default_str = 'unreferenced exception 0x%X' % self._last_except
         return EXP_DETAILS.get(self._last_except, default_str)
 
     @property
@@ -211,7 +195,7 @@ class ModbusClient:
     def host(self, value):
         # check type
         if type(value) is not str:
-            raise TypeError("host must be a str")
+            raise TypeError('host must be a str')
         # check value
         if valid_host(value):
             if self._host != value:
@@ -219,7 +203,7 @@ class ModbusClient:
                 self._host = value
             return
         # can't be set
-        raise ValueError("host can't be set (not a valid IP address or hostname)")
+        raise ValueError('host can\'t be set (not a valid IP address or hostname)')
 
     @property
     def port(self):
@@ -233,7 +217,7 @@ class ModbusClient:
     def port(self, value):
         # check type
         if type(value) is not int:
-            raise TypeError("port must be an int")
+            raise TypeError('port must be an int')
         # check validity
         if 0 < value < 65536:
             if self._port != value:
@@ -241,7 +225,7 @@ class ModbusClient:
                 self._port = value
             return
         # can't be set
-        raise ValueError("port can't be set (valid if 0 < port < 65536)")
+        raise ValueError('port can\'t be set (valid if 0 < port < 65536)')
 
     @property
     def unit_id(self):
@@ -255,13 +239,13 @@ class ModbusClient:
     def unit_id(self, value):
         # check type
         if type(value) is not int:
-            raise TypeError("unit_id must be an int")
+            raise TypeError('unit_id must be an int')
         # check validity
         if 0 <= value <= 255:
             self._unit_id = value
             return
         # can't be set
-        raise ValueError("unit_id can't be set (valid from 0 to 255)")
+        raise ValueError('unit_id can\'t be set (valid from 0 to 255)')
 
     @property
     def timeout(self):
@@ -283,7 +267,7 @@ class ModbusClient:
                 self._timeout = value
             return
         # can't be set
-        raise ValueError("timeout can't be set (valid between 0 and 3600)")
+        raise ValueError('timeout can\'t be set (valid between 0 and 3600)')
 
     @property
     def auto_open(self):
@@ -348,7 +332,7 @@ class ModbusClient:
             break
         # check connect status
         if not self.is_open:
-            raise ModbusClient._NetworkError(MB_CONNECT_ERR, "connection refused")
+            raise ModbusClient._NetworkError(MB_CONNECT_ERR, 'connection refused')
 
     def close(self):
         """Close current TCP connection."""
@@ -381,15 +365,15 @@ class ModbusClient:
         :rtype: list of bool or None
         """
         # check params
-        if not 0 <= int(bit_addr) <= 0xFFFF:
-            raise ValueError("bit_addr out of range (valid from 0 to 65535)")
+        if not 0 <= int(bit_addr) <= 0xffff:
+            raise ValueError('bit_addr out of range (valid from 0 to 65535)')
         if not 1 <= int(bit_nb) <= 2000:
-            raise ValueError("bit_nb out of range (valid from 1 to 2000)")
+            raise ValueError('bit_nb out of range (valid from 1 to 2000)')
         if int(bit_addr) + int(bit_nb) > 0x10000:
-            raise ValueError("read after end of modbus address space")
+            raise ValueError('read after end of modbus address space')
         # make request
         try:
-            tx_pdu = struct.pack(">BHH", READ_COILS, bit_addr, bit_nb)
+            tx_pdu = struct.pack('>BHH', READ_COILS, bit_addr, bit_nb)
             rx_pdu = self._req_pdu(tx_pdu=tx_pdu, rx_min_len=3)
             # field "byte count" from PDU
             byte_count = rx_pdu[1]
@@ -397,7 +381,7 @@ class ModbusClient:
             rx_pdu_coils = rx_pdu[2:]
             # check rx_byte_count: match nb of bits request and check buffer size
             if byte_count < byte_length(bit_nb) or byte_count != len(rx_pdu_coils):
-                raise ModbusClient._NetworkError(MB_RECV_ERR, "rx byte count mismatch")
+                raise ModbusClient._NetworkError(MB_RECV_ERR, 'rx byte count mismatch')
             # allocate coils list to return
             ret_coils = [False] * bit_nb
             # populate it with coils value from the rx PDU
@@ -421,15 +405,15 @@ class ModbusClient:
         :rtype: list of bool or None
         """
         # check params
-        if not 0 <= int(bit_addr) <= 0xFFFF:
-            raise ValueError("bit_addr out of range (valid from 0 to 65535)")
+        if not 0 <= int(bit_addr) <= 0xffff:
+            raise ValueError('bit_addr out of range (valid from 0 to 65535)')
         if not 1 <= int(bit_nb) <= 2000:
-            raise ValueError("bit_nb out of range (valid from 1 to 2000)")
+            raise ValueError('bit_nb out of range (valid from 1 to 2000)')
         if int(bit_addr) + int(bit_nb) > 0x10000:
-            raise ValueError("read after end of modbus address space")
+            raise ValueError('read after end of modbus address space')
         # make request
         try:
-            tx_pdu = struct.pack(">BHH", READ_DISCRETE_INPUTS, bit_addr, bit_nb)
+            tx_pdu = struct.pack('>BHH', READ_DISCRETE_INPUTS, bit_addr, bit_nb)
             rx_pdu = self._req_pdu(tx_pdu=tx_pdu, rx_min_len=3)
             # extract field "byte count"
             byte_count = rx_pdu[1]
@@ -437,7 +421,7 @@ class ModbusClient:
             rx_pdu_d_inputs = rx_pdu[2:]
             # check rx_byte_count: match nb of bits request and check buffer size
             if byte_count < byte_length(bit_nb) or byte_count != len(rx_pdu_d_inputs):
-                raise ModbusClient._NetworkError(MB_RECV_ERR, "rx byte count mismatch")
+                raise ModbusClient._NetworkError(MB_RECV_ERR, 'rx byte count mismatch')
             # allocate a bit_nb size list
             bits = [False] * bit_nb
             # fill bits list with bit items
@@ -461,29 +445,29 @@ class ModbusClient:
         :rtype: list of int or None
         """
         # check params
-        if not 0 <= int(reg_addr) <= 0xFFFF:
-            raise ValueError("reg_addr out of range (valid from 0 to 65535)")
+        if not 0 <= int(reg_addr) <= 0xffff:
+            raise ValueError('reg_addr out of range (valid from 0 to 65535)')
         if not 1 <= int(reg_nb) <= 125:
-            raise ValueError("reg_nb out of range (valid from 1 to 125)")
+            raise ValueError('reg_nb out of range (valid from 1 to 125)')
         if int(reg_addr) + int(reg_nb) > 0x10000:
-            raise ValueError("read after end of modbus address space")
+            raise ValueError('read after end of modbus address space')
         # make request
         try:
-            tx_pdu = struct.pack(">BHH", READ_HOLDING_REGISTERS, reg_addr, reg_nb)
+            tx_pdu = struct.pack('>BHH', READ_HOLDING_REGISTERS, reg_addr, reg_nb)
             rx_pdu = self._req_pdu(tx_pdu=tx_pdu, rx_min_len=3)
             # extract field "byte count"
             byte_count = rx_pdu[1]
             # frame with regs value
             f_regs = rx_pdu[2:]
             # check rx_byte_count: buffer size must be consistent and have at least the requested number of registers
-            # print(byte_count, reg_nb,len(f_regs))
-            if byte_count < 2 * reg_nb or byte_count != (len(f_regs)) - 1:
-                raise ModbusClient._NetworkError(MB_RECV_ERR, "rx byte count mismatch")
+            #print(byte_count, reg_nb,len(f_regs))
+            if byte_count < 2 * reg_nb or byte_count != (len(f_regs))-1:
+                raise ModbusClient._NetworkError(MB_RECV_ERR, 'rx byte count mismatch')
             # allocate a reg_nb size list
             registers = [0] * reg_nb
             # fill registers list with register items
-            for i in range(len(f_regs) // 2):
-                registers[i] = struct.unpack(">H", f_regs[i * 2 : i * 2 + 2])[0]
+            for i in range(len(f_regs)//2):
+                registers[i] = struct.unpack('>H', f_regs[i * 2:i * 2 + 2])[0]
                 print(registers[i])
             # return registers list
             return registers
@@ -504,15 +488,15 @@ class ModbusClient:
         :rtype: list of int or None
         """
         # check params
-        if not 0 <= int(reg_addr) <= 0xFFFF:
-            raise ValueError("reg_addr out of range (valid from 0 to 65535)")
+        if not 0 <= int(reg_addr) <= 0xffff:
+            raise ValueError('reg_addr out of range (valid from 0 to 65535)')
         if not 1 <= int(reg_nb) <= 125:
-            raise ValueError("reg_nb out of range (valid from 1 to 125)")
+            raise ValueError('reg_nb out of range (valid from 1 to 125)')
         if int(reg_addr) + int(reg_nb) > 0x10000:
-            raise ValueError("read after end of modbus address space")
+            raise ValueError('read after end of modbus address space')
         # make request
         try:
-            tx_pdu = struct.pack(">BHH", READ_INPUT_REGISTERS, reg_addr, reg_nb)
+            tx_pdu = struct.pack('>BHH', READ_INPUT_REGISTERS, reg_addr, reg_nb)
             rx_pdu = self._req_pdu(tx_pdu=tx_pdu, rx_min_len=3)
             # extract field "byte count"
             byte_count = rx_pdu[1]
@@ -520,12 +504,12 @@ class ModbusClient:
             f_regs = rx_pdu[2:]
             # check rx_byte_count: buffer size must be consistent and have at least the requested number of registers
             if byte_count < 2 * reg_nb or byte_count != len(f_regs):
-                raise ModbusClient._NetworkError(MB_RECV_ERR, "rx byte count mismatch")
+                raise ModbusClient._NetworkError(MB_RECV_ERR, 'rx byte count mismatch')
             # allocate a reg_nb size list
             registers = [0] * reg_nb
             # fill registers list with register items
             for i in range(reg_nb):
-                registers[i] = struct.unpack(">H", f_regs[i * 2 : i * 2 + 2])[0]
+                registers[i] = struct.unpack('>H', f_regs[i * 2:i * 2 + 2])[0]
             # return registers list
             return registers
         # handle error during request
@@ -546,18 +530,13 @@ class ModbusClient:
         """
         # check params
         if not 1 <= int(read_code) <= 4:
-            raise ValueError("read_code out of range (valid from 1 to 4)")
-        if not 0 <= int(object_id) <= 0xFF:
-            raise ValueError("object_id out of range (valid from 0 to 255)")
+            raise ValueError('read_code out of range (valid from 1 to 4)')
+        if not 0 <= int(object_id) <= 0xff:
+            raise ValueError('object_id out of range (valid from 0 to 255)')
         # make request
         try:
-            tx_pdu = struct.pack(
-                "BBBB",
-                ENCAPSULATED_INTERFACE_TRANSPORT,
-                MEI_TYPE_READ_DEVICE_ID,
-                read_code,
-                object_id,
-            )
+            tx_pdu = struct.pack('BBBB', ENCAPSULATED_INTERFACE_TRANSPORT,
+                                 MEI_TYPE_READ_DEVICE_ID, read_code, object_id)
             rx_pdu = self._req_pdu(tx_pdu=tx_pdu, rx_min_len=7)
             # init response object for populate it
             response = DeviceIdentificationResponse()
@@ -576,16 +555,12 @@ class ModbusClient:
                 # parse object PDU bytes
                 try:
                     obj_id = rx_pdu[pdu_offset]
-                    obj_len = rx_pdu[pdu_offset + 1]
-                    obj_value = rx_pdu[pdu_offset + 2 : pdu_offset + 2 + obj_len]
+                    obj_len = rx_pdu[pdu_offset+1]
+                    obj_value = rx_pdu[pdu_offset+2:pdu_offset+2+obj_len]
                 except IndexError:
-                    raise ModbusClient._NetworkError(
-                        MB_RECV_ERR, "rx byte count mismatch"
-                    )
+                    raise ModbusClient._NetworkError(MB_RECV_ERR, 'rx byte count mismatch')
                 if obj_len != len(obj_value):
-                    raise ModbusClient._NetworkError(
-                        MB_RECV_ERR, "rx byte count mismatch"
-                    )
+                    raise ModbusClient._NetworkError(MB_RECV_ERR, 'rx byte count mismatch')
                 # set offset to next object
                 pdu_offset += 2 + obj_len
                 # add result to request list
@@ -607,22 +582,20 @@ class ModbusClient:
         :rtype: bool
         """
         # check params
-        if not 0 <= int(bit_addr) <= 0xFFFF:
-            raise ValueError("bit_addr out of range (valid from 0 to 65535)")
+        if not 0 <= int(bit_addr) <= 0xffff:
+            raise ValueError('bit_addr out of range (valid from 0 to 65535)')
         # make request
         try:
             # format "bit value" field for PDU
-            bit_value_raw = (0x0000, 0xFF00)[bool(bit_value)]
+            bit_value_raw = (0x0000, 0xff00)[bool(bit_value)]
             # make a request
-            tx_pdu = struct.pack(">BHH", WRITE_SINGLE_COIL, bit_addr, bit_value_raw)
+            tx_pdu = struct.pack('>BHH', WRITE_SINGLE_COIL, bit_addr, bit_value_raw)
             rx_pdu = self._req_pdu(tx_pdu=tx_pdu, rx_min_len=5)
             # decode reply
-            resp_coil_addr, resp_coil_value = struct.unpack(">HH", rx_pdu[1:5])
+            resp_coil_addr, resp_coil_value = struct.unpack('>HH', rx_pdu[1:5])
             # check server reply
             if (resp_coil_addr != bit_addr) or (resp_coil_value != bit_value_raw):
-                raise ModbusClient._NetworkError(
-                    MB_RECV_ERR, "server reply does not match the request"
-                )
+                raise ModbusClient._NetworkError(MB_RECV_ERR, 'server reply does not match the request')
             return True
         # handle error during request
         except ModbusClient._InternalError as e:
@@ -640,22 +613,20 @@ class ModbusClient:
         :rtype: bool
         """
         # check params
-        if not 0 <= int(reg_addr) <= 0xFFFF:
-            raise ValueError("reg_addr out of range (valid from 0 to 65535)")
-        if not 0 <= int(reg_value) <= 0xFFFF:
-            raise ValueError("reg_value out of range (valid from 0 to 65535)")
+        if not 0 <= int(reg_addr) <= 0xffff:
+            raise ValueError('reg_addr out of range (valid from 0 to 65535)')
+        if not 0 <= int(reg_value) <= 0xffff:
+            raise ValueError('reg_value out of range (valid from 0 to 65535)')
         # make request
         try:
             # make a request
-            tx_pdu = struct.pack(">BHH", WRITE_SINGLE_REGISTER, reg_addr, reg_value)
+            tx_pdu = struct.pack('>BHH', WRITE_SINGLE_REGISTER, reg_addr, reg_value)
             rx_pdu = self._req_pdu(tx_pdu=tx_pdu, rx_min_len=5)
             # decode reply
-            resp_reg_addr, resp_reg_value = struct.unpack(">HH", rx_pdu[1:5])
+            resp_reg_addr, resp_reg_value = struct.unpack('>HH', rx_pdu[1:5])
             # check server reply
             if (resp_reg_addr != reg_addr) or (resp_reg_value != reg_value):
-                raise ModbusClient._NetworkError(
-                    MB_RECV_ERR, "server reply does not match the request"
-                )
+                raise ModbusClient._NetworkError(MB_RECV_ERR, 'server reply does not match the request')
             return True
         # handle error during request
         except ModbusClient._InternalError as e:
@@ -673,12 +644,12 @@ class ModbusClient:
         :rtype: bool
         """
         # check params
-        if not 0 <= int(bits_addr) <= 0xFFFF:
-            raise ValueError("bit_addr out of range (valid from 0 to 65535)")
+        if not 0 <= int(bits_addr) <= 0xffff:
+            raise ValueError('bit_addr out of range (valid from 0 to 65535)')
         if not 1 <= len(bits_value) <= 1968:
-            raise ValueError("number of coils out of range (valid from 1 to 1968)")
+            raise ValueError('number of coils out of range (valid from 1 to 1968)')
         if int(bits_addr) + len(bits_value) > 0x10000:
-            raise ValueError("write after end of modbus address space")
+            raise ValueError('write after end of modbus address space')
         # make request
         try:
             # build PDU coils part
@@ -689,24 +660,16 @@ class ModbusClient:
                 if item:
                     byte_l[i // 8] = set_bit(byte_l[i // 8], i % 8)
             # format PDU coils part with byte list
-            pdu_coils_part = struct.pack("%dB" % len(byte_l), *byte_l)
+            pdu_coils_part = struct.pack('%dB' % len(byte_l), *byte_l)
             # concatenate PDU parts
-            tx_pdu = struct.pack(
-                ">BHHB",
-                WRITE_MULTIPLE_COILS,
-                bits_addr,
-                len(bits_value),
-                len(pdu_coils_part),
-            )
+            tx_pdu = struct.pack('>BHHB', WRITE_MULTIPLE_COILS, bits_addr, len(bits_value), len(pdu_coils_part))
             tx_pdu += pdu_coils_part
             # make a request
             rx_pdu = self._req_pdu(tx_pdu=tx_pdu, rx_min_len=5)
             # response decode
-            resp_write_addr, resp_write_count = struct.unpack(">HH", rx_pdu[1:5])
+            resp_write_addr, resp_write_count = struct.unpack('>HH', rx_pdu[1:5])
             # check response fields
-            write_ok = resp_write_addr == bits_addr and resp_write_count == len(
-                bits_value
-            )
+            write_ok = resp_write_addr == bits_addr and resp_write_count == len(bits_value)
             return write_ok
         # handle error during request
         except ModbusClient._InternalError as e:
@@ -724,46 +687,40 @@ class ModbusClient:
         :rtype: bool
         """
         # check params
-        if not 0 <= int(regs_addr) <= 0xFFFF:
-            raise ValueError("regs_addr out of range (valid from 0 to 65535)")
+        if not 0 <= int(regs_addr) <= 0xffff:
+            raise ValueError('regs_addr out of range (valid from 0 to 65535)')
         if not 1 <= len(regs_value) <= 123:
-            raise ValueError("number of registers out of range (valid from 1 to 123)")
+            raise ValueError('number of registers out of range (valid from 1 to 123)')
         if int(regs_addr) + len(regs_value) > 0x10000:
-            raise ValueError("write after end of modbus address space")
+            raise ValueError('write after end of modbus address space')
         # make request
         try:
             # init PDU registers part
-            pdu_regs_part = b""
+            pdu_regs_part = b''
             # populate it with register values
             for reg in regs_value:
                 # check current register value
-                if not 0 <= int(reg) <= 0xFFFF:
-                    raise ValueError("regs_value list contains out of range values")
+                if not 0 <= int(reg) <= 0xffff:
+                    raise ValueError('regs_value list contains out of range values')
                 # pack register for build frame
-                pdu_regs_part += struct.pack(">H", reg)
+                pdu_regs_part += struct.pack('>H', reg)
             bytes_nb = len(pdu_regs_part)
             # concatenate PDU parts
-            tx_pdu = struct.pack(
-                ">BHHB", WRITE_MULTIPLE_REGISTERS, regs_addr, len(regs_value), bytes_nb
-            )
+            tx_pdu = struct.pack('>BHHB', WRITE_MULTIPLE_REGISTERS, regs_addr, len(regs_value), bytes_nb)
             tx_pdu += pdu_regs_part
             # make a request
             rx_pdu = self._req_pdu(tx_pdu=tx_pdu, rx_min_len=5)
             # response decode
-            resp_write_addr, resp_write_count = struct.unpack(">HH", rx_pdu[1:5])
+            resp_write_addr, resp_write_count = struct.unpack('>HH', rx_pdu[1:5])
             # check response fields
-            write_ok = resp_write_addr == regs_addr and resp_write_count == len(
-                regs_value
-            )
+            write_ok = resp_write_addr == regs_addr and resp_write_count == len(regs_value)
             return write_ok
         # handle error during request
         except ModbusClient._InternalError as e:
             self._req_except_handler(e)
             return False
 
-    def write_read_multiple_registers(
-        self, write_addr, write_values, read_addr, read_nb=1
-    ):
+    def write_read_multiple_registers(self, write_addr, write_values, read_addr, read_nb=1):
         """Modbus function WRITE_READ_MULTIPLE_REGISTERS (0x17).
 
         :param write_addr: write registers address (0 to 65535)
@@ -778,57 +735,30 @@ class ModbusClient:
         :rtype: list of int or None
         """
         # check params
-        check_l = [
-            (
-                not 0 <= int(write_addr) <= 0xFFFF,
-                "write_addr out of range (valid from 0 to 65535)",
-            ),
-            (
-                not 1 <= len(write_values) <= 121,
-                "number of registers out of range (valid from 1 to 121)",
-            ),
-            (
-                int(write_addr) + len(write_values) > 0x10000,
-                "write after end of modbus address space",
-            ),
-            (
-                not 0 <= int(read_addr) <= 0xFFFF,
-                "read_addr out of range (valid from 0 to 65535)",
-            ),
-            (
-                not 1 <= int(read_nb) <= 125,
-                "read_nb out of range (valid from 1 to 125)",
-            ),
-            (
-                int(read_addr) + int(read_nb) > 0x10000,
-                "read after end of modbus address space",
-            ),
-        ]
+        check_l = [(not 0 <= int(write_addr) <= 0xffff, 'write_addr out of range (valid from 0 to 65535)'),
+                   (not 1 <= len(write_values) <= 121, 'number of registers out of range (valid from 1 to 121)'),
+                   (int(write_addr) + len(write_values) > 0x10000, 'write after end of modbus address space'),
+                   (not 0 <= int(read_addr) <= 0xffff, 'read_addr out of range (valid from 0 to 65535)'),
+                   (not 1 <= int(read_nb) <= 125, 'read_nb out of range (valid from 1 to 125)'),
+                   (int(read_addr) + int(read_nb) > 0x10000, 'read after end of modbus address space'), ]
         for err, msg in check_l:
             if err:
                 raise ValueError(msg)
         # make request
         try:
             # init PDU registers part
-            pdu_regs_part = b""
+            pdu_regs_part = b''
             # populate it with register values
             for reg in write_values:
                 # check current register value
-                if not 0 <= int(reg) <= 0xFFFF:
-                    raise ValueError("write_values list contains out of range values")
+                if not 0 <= int(reg) <= 0xffff:
+                    raise ValueError('write_values list contains out of range values')
                 # pack register for build frame
-                pdu_regs_part += struct.pack(">H", reg)
+                pdu_regs_part += struct.pack('>H', reg)
             bytes_nb = len(pdu_regs_part)
             # concatenate PDU parts
-            tx_pdu = struct.pack(
-                ">BHHHHB",
-                WRITE_READ_MULTIPLE_REGISTERS,
-                read_addr,
-                read_nb,
-                write_addr,
-                len(write_values),
-                bytes_nb,
-            )
+            tx_pdu = struct.pack('>BHHHHB', WRITE_READ_MULTIPLE_REGISTERS, read_addr, read_nb,
+                                 write_addr, len(write_values), bytes_nb)
             tx_pdu += pdu_regs_part
             # make a request
             rx_pdu = self._req_pdu(tx_pdu=tx_pdu, rx_min_len=4)
@@ -839,12 +769,12 @@ class ModbusClient:
             f_regs = rx_pdu[2:]
             # check rx_byte_count: buffer size must be consistent and have at least the requested number of registers
             if byte_count < 2 * read_nb or byte_count != len(f_regs):
-                raise ModbusClient._NetworkError(MB_RECV_ERR, "rx byte count mismatch")
+                raise ModbusClient._NetworkError(MB_RECV_ERR, 'rx byte count mismatch')
             # allocate a reg_nb size list
             registers = [0] * read_nb
             # fill registers list with register items
             for i in range(read_nb):
-                registers[i] = struct.unpack(">H", f_regs[i * 2 : i * 2 + 2])[0]
+                registers[i] = struct.unpack('>H', f_regs[i * 2:i * 2 + 2])[0]
             # return registers list
             return registers
         # handle error during request
@@ -860,18 +790,16 @@ class ModbusClient:
         """
         # check socket
         if not self.is_open:
-            raise ModbusClient._NetworkError(
-                MB_SOCK_CLOSE_ERR, "try to send on a close socket"
-            )
+            raise ModbusClient._NetworkError(MB_SOCK_CLOSE_ERR, 'try to send on a close socket')
         # send
         try:
             self._sock.send(frame)
         except socket.timeout:
             self._sock.close()
-            raise ModbusClient._NetworkError(MB_TIMEOUT_ERR, "timeout error")
+            raise ModbusClient._NetworkError(MB_TIMEOUT_ERR, 'timeout error')
         except socket.error:
             self._sock.close()
-            raise ModbusClient._NetworkError(MB_SEND_ERR, "send error")
+            raise ModbusClient._NetworkError(MB_SEND_ERR, 'send error')
 
     def _send_pdu(self, pdu):
         """Convert modbus PDU to frame and send it.
@@ -901,13 +829,13 @@ class ModbusClient:
             r_buffer = self._sock.recv(size)
         except socket.timeout:
             self._sock.close()
-            raise ModbusClient._NetworkError(MB_TIMEOUT_ERR, "timeout error")
+            raise ModbusClient._NetworkError(MB_TIMEOUT_ERR, 'timeout error')
         except socket.error:
-            r_buffer = b""
+            r_buffer = b''
         # handle recv error
         if not r_buffer:
             self._sock.close()
-            raise ModbusClient._NetworkError(MB_RECV_ERR, "recv error")
+            raise ModbusClient._NetworkError(MB_RECV_ERR, 'recv error')
         return r_buffer
 
     def _recv_all(self, size):
@@ -918,7 +846,7 @@ class ModbusClient:
         :returns: receive data or None if error
         :rtype: bytes
         """
-        r_buffer = b""
+        r_buffer = b''
         while len(r_buffer) < size:
             r_buffer += self._recv(size - len(r_buffer))
         return r_buffer
@@ -934,9 +862,7 @@ class ModbusClient:
         # receive 7 bytes header (MBAP)
         rx_mbap = self._recv_all(7)
         # decode MBAP
-        (f_transaction_id, f_protocol_id, f_length, f_unit_id) = struct.unpack(
-            ">HHHB", rx_mbap
-        )
+        (f_transaction_id, f_protocol_id, f_length, f_unit_id) = struct.unpack('>HHHB', rx_mbap)
         # check MBAP fields
         f_transaction_err = f_transaction_id != self._transaction_id
         f_protocol_err = f_protocol_id != 0
@@ -946,7 +872,7 @@ class ModbusClient:
         if f_transaction_err or f_protocol_err or f_length_err or f_unit_id_err:
             self.close()
             self._on_tx_rx(frame=rx_mbap, is_tx=False)
-            raise ModbusClient._NetworkError(MB_RECV_ERR, "MBAP checking error")
+            raise ModbusClient._NetworkError(MB_RECV_ERR, 'MBAP checking error')
         # recv PDU
         rx_pdu = self._recv_all(f_length - 1)
         # for auto_close mode, close socket after each request
@@ -957,7 +883,7 @@ class ModbusClient:
         # body decode
         # check PDU length for global minimal frame (an except frame: func code + exp code)
         if len(rx_pdu) < 2:
-            raise ModbusClient._NetworkError(MB_RECV_ERR, "PDU length is too short")
+            raise ModbusClient._NetworkError(MB_RECV_ERR, 'PDU length is too short')
         # extract function code
         rx_fc = rx_pdu[0]
         # check except status
@@ -966,9 +892,7 @@ class ModbusClient:
             raise ModbusClient._ModbusExcept(exp_code)
         # check PDU length for specific request set in min_len (keep this after except checking)
         if len(rx_pdu) < min_len:
-            raise ModbusClient._NetworkError(
-                MB_RECV_ERR, "PDU length is too short for current request"
-            )
+            raise ModbusClient._NetworkError(MB_RECV_ERR, 'PDU length is too short for current request')
         # if no error, return PDU
         return rx_pdu
 
@@ -984,9 +908,7 @@ class ModbusClient:
         self._transaction_id = random.randint(0, 65535)
         protocol_id = 0
         length = len(pdu) + 1
-        mbap = struct.pack(
-            ">HHHB", self._transaction_id, protocol_id, length, self.unit_id
-        )
+        mbap = struct.pack('>HHHB', self._transaction_id, protocol_id, length, self.unit_id)
         # full modbus/TCP frame = [MBAP]PDU
         return mbap + pdu
 
@@ -1022,20 +944,18 @@ class ModbusClient:
         if isinstance(_except, ModbusClient._ModbusExcept):
             self._last_error = MB_EXCEPT_ERR
             self._last_except = _except.code
-            self._debug_msg(
-                f'modbus exception (code {self.last_except} "{self.last_error_as_txt}")'
-            )
+            self._debug_msg(f'modbus exception (code {self.last_except} "{self.last_error_as_txt}")')
 
     def _debug_msg(self, msg: str):
-        logger.debug(f"({self.host}:{self.port}:{self.unit_id}) {msg}")
+        logger.debug(f'({self.host}:{self.port}:{self.unit_id}) {msg}')
 
     def _on_tx_rx(self, frame: bytes, is_tx: bool):
         # format a log message
         if logger.isEnabledFor(logging.DEBUG):
-            type_s = "Tx" if is_tx else "Rx"
-            mbap_s = hexlify(frame[0:7], sep=" ").upper().decode()
-            pdu_s = hexlify(frame[7:], sep=" ").upper().decode()
-            self._debug_msg(f"{type_s} [{mbap_s}] {pdu_s}")
+            type_s = 'Tx' if is_tx else 'Rx'
+            mbap_s = hexlify(frame[0:7], sep=' ').upper().decode()
+            pdu_s = hexlify(frame[7:], sep=' ').upper().decode()
+            self._debug_msg(f'{type_s} [{mbap_s}] {pdu_s}')
         # notify user
         self.on_tx_rx(frame=frame, is_tx=is_tx)
 

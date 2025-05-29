@@ -466,14 +466,12 @@ class ModbusClient:
             # allocate a reg_nb size list
             registers = [0] * reg_nb
             # fill registers list with register items
-            for i in range(len(f_regs)//2):
+            for i in range(reg_nb):
                 registers[i] = struct.unpack('>H', f_regs[i * 2:i * 2 + 2])[0]
-                print(registers[i])
             # return registers list
             return registers
         # handle error during request
         except ModbusClient._InternalError as e:
-            print(e)
             self._req_except_handler(e)
             return None
 
